@@ -1,6 +1,7 @@
 module github.com/tzapu/deposits-monitor
 
 require (
+	github.com/gorilla/websocket v1.4.1
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kwix/logrus-module-formatter v0.0.0-20190702125859-070a70371a97
