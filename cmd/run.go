@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+
+	"github.com/tzapu/deposits-monitor/data"
+
 	"github.com/corpetty/go-alethio-api/alethio"
 	"github.com/spf13/cobra"
 	"github.com/tzapu/deposits-monitor/helper"
@@ -18,6 +22,11 @@ var runCmd = &cobra.Command{
 		apiKey := ""
 		address := "0x0000000000000000000000000000000000000000"
 		//address := "0x3378eeaf39dffb316a95f31f17910cbb21ace6bb" // eth2 goerli deposit contract
+
+		dbFile := fmt.Sprintf("db/%s.bolt", address)
+		data, err := data.New(dbFile)
+		helper.FatalIfError(err, "db open")
+		defer data.Close()
 
 		client, err := alethio.NewClient(
 			alethio.Opts.URL(apiEndpoint),

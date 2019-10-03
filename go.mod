@@ -1,6 +1,7 @@
 module github.com/tzapu/deposits-monitor
 
 require (
+	github.com/boltdb/bolt v1.3.1
 	github.com/corpetty/go-alethio-api v0.0.0-20190826114720-c377d4d697f6
 	github.com/davecgh/go-spew v1.1.1
 	github.com/gorilla/websocket v1.4.1

@@ -32,3 +32,4 @@ tmp/
 
 config.yml
 deposits-monitor
+db/
