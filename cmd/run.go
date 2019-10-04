@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"fmt"
-
-	"github.com/tzapu/deposits-monitor/data"
-	"github.com/tzapu/deposits-monitor/monitor"
+	"os"
+	"os/signal"
 
 	"github.com/corpetty/go-alethio-api/alethio"
 	"github.com/spf13/cobra"
+	"github.com/tzapu/deposits-monitor/data"
 	"github.com/tzapu/deposits-monitor/helper"
+	"github.com/tzapu/deposits-monitor/monitor"
 )
 
 var runCmd = &cobra.Command{
@@ -22,6 +23,12 @@ var runCmd = &cobra.Command{
 		address := "0x0000000000000000000000000000000000000000"
 		//address := "0x3378eeaf39dffb316a95f31f17910cbb21ace6bb" // eth2 goerli deposit contract
 
+		client, err := alethio.NewClient(
+			alethio.Opts.URL(apiEndpoint),
+			alethio.Opts.APIKey(apiKey),
+		)
+		helper.FatalIfError(err)
+
 		dbFile := fmt.Sprintf("db/%s.bolt", address)
 		log.Infof("opening db %s", dbFile)
 		data, err := data.New(dbFile)
@@ -34,14 +41,16 @@ var runCmd = &cobra.Command{
 			log.Infof("db closed")
 		}()
 
-		client, err := alethio.NewClient(
-			alethio.Opts.URL(apiEndpoint),
-			alethio.Opts.APIKey(apiKey),
-		)
-		helper.FatalIfError(err)
+		// catch interrupts
+		interrupt := make(chan os.Signal, 1)
+		signal.Notify(interrupt, os.Kill, os.Interrupt)
 
-		monitor.Run(client, address)
+		go monitor.Run(client, address)
 		//server.Serve()
+
+		// wait on interrupt
+		<-interrupt
+		log.Info("got interrupt")
 	},
 }
 
