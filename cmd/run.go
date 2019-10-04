@@ -2,15 +2,13 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
 
 	"github.com/tzapu/deposits-monitor/data"
+	"github.com/tzapu/deposits-monitor/monitor"
 
 	"github.com/corpetty/go-alethio-api/alethio"
 	"github.com/spf13/cobra"
-	"github.com/tzapu/deposits-monitor/monitor"
-	"github.com/tzapu/deposits-monitor/server"
+	"github.com/tzapu/deposits-monitor/helper"
 )
 
 var runCmd = &cobra.Command{
@@ -24,33 +22,14 @@ var runCmd = &cobra.Command{
 		address := "0x0000000000000000000000000000000000000000"
 		//address := "0x3378eeaf39dffb316a95f31f17910cbb21ace6bb" // eth2 goerli deposit contract
 
-		// make sure we catch all defers
-		var err error
-		defer func() {
-			if err != nil {
-				log.Fatalf("main: %s", err)
-			}
-		}()
-
-		signals := make(chan os.Signal, 1)
-		signal.Notify(signals, os.Kill, os.Interrupt)
-
-		go func() {
-			<-signals
-			log.Println("[signals] We're in here!")
-			os.Exit(0)
-		}()
-
 		dbFile := fmt.Sprintf("db/%s.bolt", address)
+		log.Infof("opening db %s", dbFile)
 		data, err := data.New(dbFile)
-		if err != nil {
-			return
-		}
+		helper.FatalIfError(err, "db open")
 		defer func() {
 			err := data.Close()
 			if err != nil {
-				log.Errorf("failed to close db: %s", err)
-				return
+				log.Fatalf("failed to close db: %s", err)
 			}
 			log.Infof("db closed")
 		}()
@@ -59,12 +38,10 @@ var runCmd = &cobra.Command{
 			alethio.Opts.URL(apiEndpoint),
 			alethio.Opts.APIKey(apiKey),
 		)
-		if err != nil {
-			return
-		}
+		helper.FatalIfError(err)
 
 		monitor.Run(client, address)
-		server.Serve()
+		//server.Serve()
 	},
 }
 

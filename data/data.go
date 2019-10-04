@@ -18,7 +18,6 @@ func (d *Data) Close() error {
 }
 
 func New(fn string) (*Data, error) {
-	log.Infof("opening db %s", fn)
 	db, err := bolt.Open(fn, 0600, &bolt.Options{Timeout: 15 * time.Second})
 	if err != nil {
 		return nil, err
