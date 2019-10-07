@@ -2,6 +2,7 @@ package importer
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/tzapu/deposits-monitor/data"
@@ -29,18 +30,17 @@ func (imp *Importer) Run() {
 	synced := imp.Synced()
 
 	// check if we need to pre-fill
-	//pollURL, err := imp.data.SettingString("pollURL")
-	//helper.FatalIfError(err, "get poll url")
-	pollURL := ""
+	pollURL := imp.PollURL()
 	if !synced {
 		// start pre-filling db
 		pollURL = imp.Backfill()
 		log.Infof("backfill done")
-
 	}
 
 	// monitor for new stuff
 	for {
+		// TODO fix the protocol mismatch with the  API
+		pollURL = strings.Replace(pollURL, "http://", "https://", 1)
 		transfers, err := imp.api.EtherTransfers.Get(ctx, pollURL)
 		helper.FatalIfError(err, "poll for transfers")
 
@@ -51,36 +51,50 @@ func (imp *Importer) Run() {
 
 }
 
-// Rescrape back-fills the database
+// Backfill the database
 func (imp *Importer) Backfill() string {
 	ctx := context.Background()
 	pollURL := ""
 
 	// is there a scrape in progress?
-	//scrapeURL, err := imp.data.SettingString("scrapeURL")
-	//helper.FatalIfError(err, "get scrape url")
-	scrapeURL := ""
+	scrapeURL := imp.ScrapeURL()
 
-	// if we don't have a scrapeURL then  this is the first run
+	// if we don't have a ScrapeURL then  this is the first run
 	if scrapeURL == "" {
 		// if we had no scrape url, then it's our first run
+		// get initial transfers
 		transfers, err := imp.api.Account.GetEtherTransfers(ctx, imp.address)
 		helper.FatalIfError(err, "get transfers")
+
 		_ = imp.processTransfers(transfers)
 		helper.FatalIfError(err, "process transfers")
+
+		// extract future poll urls from initial transfers
 		pollURL = transfers.Links.Prev
+		imp.SetPollURL(pollURL)
+
+		// update scrape url  so we know where to start from if this fails
 		scrapeURL = transfers.Links.Next
+		imp.SetScrapedURL(scrapeURL)
 	}
 
-	// TODO remove when we have pre-fill
 	for {
+		// TODO fix the protocol mismatch with the  API
+		scrapeURL = strings.Replace(scrapeURL, "http://", "https://", 1)
 		transfers, err := imp.api.EtherTransfers.Get(ctx, scrapeURL)
 		helper.FatalIfError(err, "traverse transfers")
+		//spew.Dump(transfers)
 		done := imp.processTransfers(transfers)
 		if done {
 			break
 		}
+
+		// update scrape url for next page
 		scrapeURL = transfers.Links.Next
+		imp.SetScrapedURL(scrapeURL)
+
+		// TODO find out what this  all is about...
+		//time.Sleep(time.Millisecond * 200)
 	}
 	// mark as synced
 	imp.SetSynced(true)

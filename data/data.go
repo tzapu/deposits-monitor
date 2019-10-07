@@ -82,29 +82,6 @@ func (d *Data) PutBool(bucket string, key string, value bool) error {
 	return d.Put(bucket, key, []byte{b})
 }
 
-//
-//func (d *Data) SettingString(key string) (string, error) {
-//	return d.String(SettingsBucket, key)
-//}
-//
-//func (d *Data) PutSettingString(key string, value string) error {
-//	return d.PutString(SettingsBucket, key, value)
-//}
-
-//func (d *Data) SettingBool(key string) (bool, error) {
-//	v, err := d.SettingString(key)
-//	if err != nil || v == "" {
-//		return false, err
-//	}
-//	b, err := strconv.ParseBool(v)
-//
-//	return b, nil
-//}
-//
-//func (d *Data) PutSettingBool(key string, value bool) error {
-//	return d.PutSettingString(key, strconv.FormatBool(value))
-//}
-
 // Close the database connection
 func (d *Data) Close() error {
 	return d.db.Close()
