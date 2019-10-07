@@ -10,7 +10,6 @@ import (
 
 	"github.com/corpetty/go-alethio-api/alethio"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,17 +26,15 @@ func (imp *Importer) Run() {
 	ctx := context.Background()
 
 	// check if we need to pre-fill
-	synced, err := imp.data.SettingBool("synced")
-	helper.FatalIfError(err, "get poll url")
+	synced := imp.Synced()
 
 	// check if we need to pre-fill
-	pollURL, err := imp.data.SettingString("pollURL")
-	helper.FatalIfError(err, "get poll url")
-
+	//pollURL, err := imp.data.SettingString("pollURL")
+	//helper.FatalIfError(err, "get poll url")
+	pollURL := ""
 	if !synced {
 		// start pre-filling db
 		pollURL = imp.Backfill()
-		helper.FatalIfError(err, "backfill")
 		log.Infof("backfill done")
 
 	}
@@ -47,7 +44,8 @@ func (imp *Importer) Run() {
 		transfers, err := imp.api.EtherTransfers.Get(ctx, pollURL)
 		helper.FatalIfError(err, "poll for transfers")
 
-		spew.Dump(transfers)
+		//spew.Dump(transfers)
+		_ = transfers
 		time.Sleep(time.Second * 15)
 	}
 
@@ -59,8 +57,9 @@ func (imp *Importer) Backfill() string {
 	pollURL := ""
 
 	// is there a scrape in progress?
-	scrapeURL, err := imp.data.SettingString("scrapeURL")
-	helper.FatalIfError(err, "get scrape url")
+	//scrapeURL, err := imp.data.SettingString("scrapeURL")
+	//helper.FatalIfError(err, "get scrape url")
+	scrapeURL := ""
 
 	// if we don't have a scrapeURL then  this is the first run
 	if scrapeURL == "" {
@@ -84,6 +83,7 @@ func (imp *Importer) Backfill() string {
 		scrapeURL = transfers.Links.Next
 	}
 	// mark as synced
+	imp.SetSynced(true)
 
 	return pollURL
 }

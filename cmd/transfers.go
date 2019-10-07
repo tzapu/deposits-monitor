@@ -35,7 +35,7 @@ var runCmd = &cobra.Command{
 		// DB
 		dbFile := fmt.Sprintf("db/%s.bolt", address)
 		log.Infof("opening db %s", dbFile)
-		data, err := data.New(dbFile)
+		data, err := data.New(dbFile, importer.Buckets)
 		helper.FatalIfError(err, "db open")
 		defer func() {
 			err := data.Close()
