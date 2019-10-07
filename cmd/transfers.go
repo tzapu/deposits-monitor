@@ -14,6 +14,9 @@ import (
 	"github.com/tzapu/deposits-monitor/importer"
 )
 
+var (
+	alethioAPIKey string
+)
 var runCmd = &cobra.Command{
 	Use:   "transfers",
 	Short: "transfers monitor",
@@ -21,18 +24,17 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("starting up server")
 		apiEndpoint := "https://api.aleth.io/v1"
-		apiKey := ""
 		address := "0x0000000000000000000000000000000000000000"
 		//address := "0x3378eeaf39dffb316a95f31f17910cbb21ace6bb" // eth2 goerli deposit contract
 
 		// API client
 		client, err := alethio.NewClient(
 			alethio.Opts.URL(apiEndpoint),
-			alethio.Opts.APIKey(apiKey),
+			alethio.Opts.APIKey(alethioAPIKey),
 		)
 		helper.FatalIfError(err)
 
-		// DB
+		// BoltDB
 		dbFile := fmt.Sprintf("db/%s.bolt", address)
 		log.Infof("opening db %s", dbFile)
 		data, err := data.New(dbFile, importer.Buckets)
@@ -63,5 +65,7 @@ var runCmd = &cobra.Command{
 }
 
 func init() {
+	alethioAPIKey = os.Getenv("ALETHIO_API_KEY")
+
 	RootCmd.AddCommand(runCmd)
 }
