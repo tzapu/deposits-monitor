@@ -35,7 +35,11 @@ func (imp *Importer) Run() {
 		// mark as synced
 		imp.SetSynced(true)
 
-		log.Infof("backfill done")
+		cnt := imp.TransfersCount()
+
+		log.
+			WithField("transfers count", cnt).
+			Infof("backfill done")
 	}
 	pollURL := imp.PollURL()
 
@@ -93,13 +97,15 @@ func (imp *Importer) Backfill() {
 		scrapeURL = transfers.Links.Next
 		imp.SetScrapedURL(scrapeURL)
 	}
-	//cnt := imp.TransactionsCount()
 }
 
 func (imp *Importer) processTransfers(transfers *alethio.EtherTransfers) bool {
 	if len(transfers.Data) == 0 {
 		return true
 	}
+
+	// TODO send just data, once it's a separate struct in the API
+	imp.SaveTransfers(transfers)
 
 	log.Debugf("processed %d records", len(transfers.Data))
 
