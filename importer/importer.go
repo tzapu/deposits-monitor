@@ -2,7 +2,6 @@ package importer
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/tzapu/deposits-monitor/data"
@@ -39,8 +38,6 @@ func (imp *Importer) Run() {
 
 	// monitor for new stuff
 	for {
-		// TODO fix the protocol mismatch with the  API
-		pollURL = strings.Replace(pollURL, "http://", "https://", 1)
 		transfers, err := imp.api.EtherTransfers.Get(ctx, pollURL)
 		helper.FatalIfError(err, "poll for transfers")
 
@@ -79,10 +76,8 @@ func (imp *Importer) Backfill() string {
 	}
 
 	for {
-		// TODO fix the protocol mismatch with the  API
-		scrapeURL = strings.Replace(scrapeURL, "http://", "https://", 1)
 		transfers, err := imp.api.EtherTransfers.Get(ctx, scrapeURL)
-		helper.FatalIfError(err, "traverse transfers")
+		helper.FatalIfError(err, "traverse transfers", scrapeURL)
 		//spew.Dump(transfers)
 		done := imp.processTransfers(transfers)
 		if done {
@@ -92,9 +87,6 @@ func (imp *Importer) Backfill() string {
 		// update scrape url for next page
 		scrapeURL = transfers.Links.Next
 		imp.SetScrapedURL(scrapeURL)
-
-		// TODO find out what this  all is about...
-		//time.Sleep(time.Millisecond * 200)
 	}
 	// mark as synced
 	imp.SetSynced(true)
