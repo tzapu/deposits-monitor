@@ -29,14 +29,18 @@ func (imp *Importer) Run() {
 	synced := imp.Synced()
 
 	// check if we need to pre-fill
-	pollURL := imp.PollURL()
 	if !synced {
 		// start pre-filling db
-		pollURL = imp.Backfill()
+		imp.Backfill()
+		// mark as synced
+		imp.SetSynced(true)
+
 		log.Infof("backfill done")
 	}
+	pollURL := imp.PollURL()
 
 	// monitor for new stuff
+	log.Infof("monitoring for new transfers")
 	for {
 		transfers, err := imp.api.EtherTransfers.Get(ctx, pollURL)
 		helper.FatalIfError(err, "poll for transfers")
@@ -49,15 +53,15 @@ func (imp *Importer) Run() {
 }
 
 // Backfill the database
-func (imp *Importer) Backfill() string {
+func (imp *Importer) Backfill() {
 	ctx := context.Background()
-	pollURL := ""
 
 	// is there a scrape in progress?
 	scrapeURL := imp.ScrapeURL()
 
 	// if we don't have a ScrapeURL then  this is the first run
 	if scrapeURL == "" {
+		log.Debugf("starting backfill")
 		// if we had no scrape url, then it's our first run
 		// get initial transfers
 		transfers, err := imp.api.Account.GetEtherTransfers(ctx, imp.address)
@@ -67,12 +71,13 @@ func (imp *Importer) Backfill() string {
 		helper.FatalIfError(err, "process transfers")
 
 		// extract future poll urls from initial transfers
-		pollURL = transfers.Links.Prev
-		imp.SetPollURL(pollURL)
+		imp.SetPollURL(transfers.Links.Prev)
 
 		// update scrape url  so we know where to start from if this fails
 		scrapeURL = transfers.Links.Next
 		imp.SetScrapedURL(scrapeURL)
+	} else {
+		log.Debugf("continuing backfill")
 	}
 
 	for {
@@ -88,16 +93,15 @@ func (imp *Importer) Backfill() string {
 		scrapeURL = transfers.Links.Next
 		imp.SetScrapedURL(scrapeURL)
 	}
-	// mark as synced
-	imp.SetSynced(true)
-
-	return pollURL
+	//cnt := imp.TransactionsCount()
 }
 
 func (imp *Importer) processTransfers(transfers *alethio.EtherTransfers) bool {
 	if len(transfers.Data) == 0 {
 		return true
 	}
+
+	log.Debugf("processed %d records", len(transfers.Data))
 
 	return false
 }
