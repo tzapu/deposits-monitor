@@ -2,7 +2,6 @@ package server
 
 import (
 	"bytes"
-	"log"
 	"net/http"
 	"time"
 
@@ -56,6 +55,10 @@ func newHub() *Hub {
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
 	}
+}
+
+func (h *Hub) Broadcast(message []byte) {
+	h.broadcast <- message
 }
 
 func (h *Hub) run() {

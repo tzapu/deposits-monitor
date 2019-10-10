@@ -1,35 +1,56 @@
 package server
 
 import (
-	"log"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/tzapu/deposits-monitor/helper"
+
+	"github.com/gin-gonic/gin"
 )
+
+var log = logrus.WithField("module", "server")
 
 func Serve() {
 	hub := newHub()
 	go hub.run()
 
-	http.HandleFunc("/", serveHome)
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(hub, w, r)
+	watcher := NewWatcher(hub)
+	go func() {
+		err := watcher.Watch("./web/assets", "./web/templates")
+		helper.FatalIfError(err, "watcher")
+	}()
+
+	r := gin.Default()
+
+	r.LoadHTMLGlob("./web/templates/*")
+
+	r.Static("/assets", "./web/assets")
+
+	r.GET("/ws", func(c *gin.Context) {
+		serveWs(hub, c.Writer, c.Request)
 	})
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
-}
 
-func serveHome(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL)
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
 
-	// serve the website
-	http.ServeFile(w, r, "home.html")
+	r.GET("/reload", func(c *gin.Context) {
+		hub.Broadcast([]byte(`{"type":"build_complete"}`))
+		c.JSON(200, gin.H{
+			"message": "broadcasted reload",
+		})
+	})
+
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"title": "Main website",
+		})
+	})
+
+	err := r.Run()
+	helper.FatalIfError(err, "gin run")
 }
