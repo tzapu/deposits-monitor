@@ -49,8 +49,12 @@ func (imp *Importer) Run() {
 		transfers, err := imp.api.EtherTransfers.Get(ctx, pollURL)
 		helper.FatalIfError(err, "poll for transfers")
 
-		//spew.Dump(transfers)
-		_ = transfers
+		imp.processTransfers(transfers)
+
+		pollURL = transfers.Links.Prev
+		imp.SetPollURL(pollURL)
+		log.Debugf("set poll url to %s", pollURL)
+
 		time.Sleep(time.Second * 15)
 	}
 
