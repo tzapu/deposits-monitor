@@ -2,9 +2,11 @@ package importer
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"time"
 
+	"github.com/alethio/web3-go/ethconv"
 	"github.com/boltdb/bolt"
 	"github.com/corpetty/go-alethio-api/alethio"
 	"github.com/tzapu/deposits-monitor/helper"
@@ -25,6 +27,71 @@ const (
 	ScrapeURLKey = "scrapeURL"
 	PollURLKey   = "pollURL"
 )
+
+type Transfer struct {
+	Hash              string
+	BlockCreationTime time.Time
+	TransferType      string
+	Value             string
+	ETHValue          string
+	URL               string
+}
+
+// TODO migrate to api transfer when available, or  own internal struct
+type APITransfer struct {
+	Type       string `json:"type"`
+	ID         string `json:"id"`
+	Attributes struct {
+		BlockCreationTime int    `json:"blockCreationTime"`
+		Cursor            string `json:"cursor"`
+		Fee               string `json:"fee"`
+		GlobalRank        []int  `json:"globalRank"`
+		Total             string `json:"total"`
+		TransferType      string `json:"transferType"`
+		Value             string `json:"value"`
+	} `json:"attributes"`
+	Relationships struct {
+		Block struct {
+			Data struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"data"`
+			Links struct {
+				Related string `json:"related"`
+			} `json:"links"`
+		} `json:"block"`
+		ContractMessage struct {
+			Data interface{} `json:"data"`
+		} `json:"contractMessage"`
+		FeeRecipient struct {
+			Data struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"data"`
+			Links struct {
+				Related string `json:"related"`
+			} `json:"links"`
+		} `json:"feeRecipient"`
+		From struct {
+			Data interface{} `json:"data"`
+		} `json:"from"`
+		To struct {
+			Data struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"data"`
+			Links struct {
+				Related string `json:"related"`
+			} `json:"links"`
+		} `json:"to"`
+		Transaction struct {
+			Data struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"data"`
+		} `json:"transaction"`
+	} `json:"relationships"`
+}
 
 func (imp *Importer) Synced() bool {
 	synced, err := imp.data.Bool(SettingsBucket, SyncedKey)
@@ -113,6 +180,56 @@ func (imp *Importer) SaveTransfers(transfers *alethio.EtherTransfers) {
 	helper.FatalIfError(err, "save transfers")
 }
 
+func (imp *Importer) TransfersList() []Transfer {
+	var transfers []Transfer
+	ts, err := imp.data.Last(TransfersBucket, 20)
+	helper.FatalIfError(err, "get last transfers")
+
+	for i := range ts {
+		var at APITransfer
+		err = json.Unmarshal(ts[i].Value, &at)
+		helper.FatalIfError(err, "unmarshal  transfer", ts[i].Key)
+
+		// TODO make network aware
+		url := "https://aleth.io/"
+		switch at.Attributes.TransferType {
+		case "TransactionTransfer":
+			url = fmt.Sprintf("%stx/%s", url, at.Relationships.Transaction.Data.ID)
+		case "ContractMessageTransfer":
+			// TODO implement contract messages links
+			/*
+				 Data: (map[string]interface {}) (len=2) {
+				    (string) (len=2) "id": (string) (len=72) "msg:0xf212d20e70d4e2c6e135f5bf392a4c346a7e3b52b4ceb3161b9564c8947b9f39:1",
+				    (string) (len=4) "type": (string) (len=15) "ContractMessage"
+					}
+			*/
+			url = fmt.Sprintf("%stx/%s", url, at.Relationships.Transaction.Data.ID)
+		}
+
+		ev, _ := ethconv.FromWei(at.Attributes.Value, ethconv.Eth, 2)
+		t := Transfer{
+			Hash:              at.Relationships.Transaction.Data.ID,
+			BlockCreationTime: TimestampToTime(at.Attributes.BlockCreationTime),
+			TransferType:      at.Attributes.TransferType,
+			Value:             at.Attributes.Value,
+			ETHValue:          ev,
+			URL:               url,
+		}
+		transfers = append(transfers, t)
+	}
+	return transfers
+}
+
+func StringToBigInt(s string) *big.Int {
+	bi := new(big.Int)
+	bi.SetString(s, 10)
+	return bi
+}
+func TimestampToTime(timestamp int) time.Time {
+	dt := time.Unix(int64(timestamp), 0)
+	return dt.UTC()
+}
+
 func TimestampToRFC3339(timestamp int) string {
 	dt := time.Unix(int64(timestamp), 0)
 	return dt.UTC().Format(time.RFC3339)
@@ -124,4 +241,20 @@ func DateToByte(date time.Time) []byte {
 
 func DateToDay(date time.Time) string {
 	return date.UTC().Format("2006-01-02")
+}
+
+func FormatDate(d time.Time) string {
+	return d.Format(time.Stamp)
+}
+
+func FormatStart(s string) string {
+	return s[:6]
+}
+
+func FormatEnd(s string) string {
+	return s[len(s)-6:]
+}
+
+func FormatMiddle(s string) string {
+	return s[6 : len(s)-6]
 }

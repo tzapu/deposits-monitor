@@ -14,6 +14,11 @@ type Data struct {
 	DB *bolt.DB
 }
 
+type Item struct {
+	Key   string
+	Value []byte
+}
+
 func (d *Data) Stats(bucket string) (bolt.BucketStats, error) {
 	var stats bolt.BucketStats
 	err := d.DB.View(func(tx *bolt.Tx) error {
@@ -40,6 +45,27 @@ func (d *Data) Get(bucket string, key string) ([]byte, error) {
 		return nil
 	})
 	return value, err
+}
+
+// Get Last values from bucket
+func (d *Data) Last(bucket string, count int) ([]Item, error) {
+	var items []Item
+	err := d.DB.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		c := b.Cursor()
+
+		fetched := 0
+		for k, v := c.Last(); k != nil && fetched < count; k, v = c.Prev() {
+			items = append([]Item{Item{
+				Key:   string(k),
+				Value: v,
+			}}, items...)
+			fetched++
+		}
+
+		return nil
+	})
+	return items, err
 }
 
 // Put a key/value pair into target bucket

@@ -56,7 +56,7 @@ var runCmd = &cobra.Command{
 
 		// Work
 		go imp.Run()
-		go server.Serve()
+		go server.Serve(imp)
 
 		// wait on interrupt
 		<-interrupt

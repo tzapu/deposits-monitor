@@ -56,18 +56,27 @@ a {
 .transfer {
     display: flex;
     -webkit-box-align: center;
-    align-items: center;
-    height: 48px;
     width: auto;
     -webkit-box-pack: inherit;
     justify-content: inherit;
-    padding: 0px 8px;
+    padding: 8px;
     flex: 0 0 auto;
+    white-space: nowrap;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .link {
     text-decoration: none;
     outline: none;
+}
+
+.value {
+    padding: 2px 7px 0px 7px;
+}
+
+.time {
+    font-size: smaller;
 }
 
 .link-box {
@@ -98,6 +107,17 @@ a {
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+#graph {
+    flex: 1;
+}
+
+#chart-line {
+    position: relative;
+    margin-top: -40px;
+}
+
+
 
 button {
     outline: none !important;

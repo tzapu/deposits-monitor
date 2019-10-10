@@ -1,7 +1,10 @@
 package server
 
 import (
+	"html/template"
 	"net/http"
+
+	"github.com/tzapu/deposits-monitor/importer"
 
 	"github.com/sirupsen/logrus"
 
@@ -12,7 +15,7 @@ import (
 
 var log = logrus.WithField("module", "server")
 
-func Serve() {
+func Serve(imp *importer.Importer) {
 	hub := newHub()
 	go hub.run()
 
@@ -22,7 +25,16 @@ func Serve() {
 		helper.FatalIfError(err, "watcher")
 	}()
 
-	r := gin.Default()
+	r := gin.New()
+	r.Use(gin.Logger()) // 25%-50%  extra performace if we disable this
+	r.Use(gin.Recovery())
+
+	r.SetFuncMap(template.FuncMap{
+		"formatDate":   importer.FormatDate,
+		"formatStart":  importer.FormatStart,
+		"formatEnd":    importer.FormatEnd,
+		"formatMiddle": importer.FormatMiddle,
+	})
 
 	r.LoadHTMLGlob("./web/templates/*")
 
@@ -46,8 +58,10 @@ func Serve() {
 	})
 
 	r.GET("/", func(c *gin.Context) {
+		transfers := imp.TransfersList()
 		c.HTML(http.StatusOK, "index.html", gin.H{
-			"title": "Main website",
+			"Title":     "Deposits Monitor",
+			"Transfers": transfers,
 		})
 	})
 

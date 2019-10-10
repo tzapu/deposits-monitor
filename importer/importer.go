@@ -91,7 +91,7 @@ func (imp *Importer) Backfill() {
 	for {
 		transfers, err := imp.api.EtherTransfers.Get(ctx, scrapeURL)
 		helper.FatalIfError(err, "traverse transfers", scrapeURL)
-		//spew.Dump(transfers)
+
 		done := imp.processTransfers(transfers)
 		if done {
 			break
