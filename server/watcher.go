@@ -25,7 +25,7 @@ func (w *Watcher) Watch(paths ...string) error {
 		}
 	}
 
-	r := rate.Every(time.Second * 5)
+	r := rate.Every(time.Second * 2)
 	limiter := rate.NewLimiter(r, 1)
 
 	for {
@@ -36,8 +36,8 @@ func (w *Watcher) Watch(paths ...string) error {
 			}
 
 			if event.Op&fsnotify.Write == fsnotify.Write {
-				log.Debugf("modified file %s", event.Name)
 				if limiter.Allow() {
+					log.Debugf("modified file %s", event.Name)
 					w.hub.Broadcast([]byte(`{"type":"build_complete"}`))
 				}
 			}
