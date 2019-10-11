@@ -34,6 +34,7 @@ func Serve(imp *importer.Importer) {
 		"formatStart":  importer.FormatStart,
 		"formatEnd":    importer.FormatEnd,
 		"formatMiddle": importer.FormatMiddle,
+		"formatJSON":   importer.FormatJSON,
 	})
 
 	r.LoadHTMLGlob("./web/templates/*")
@@ -59,9 +60,11 @@ func Serve(imp *importer.Importer) {
 
 	r.GET("/", func(c *gin.Context) {
 		transfers := imp.TransfersList()
+		daily := imp.DailyList()
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"Title":     "Deposits Monitor",
 			"Transfers": transfers,
+			"Daily":     daily,
 		})
 	})
 

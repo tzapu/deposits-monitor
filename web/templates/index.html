@@ -43,15 +43,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
-        var data = generateDayWiseTimeSeries(new Date('11 Feb 2017').getTime(), 185, {
-            min: 30,
-            max: 90
-        })
+        var data = {{.Daily | formatJSON}};
         var optionsline2 = {
             chart: {
                 id: 'chart2',
                 type: 'line',
-                height: 230,
+                height: 430,
                 toolbar: {
                     autoSelected: 'pan',
                     show: false
@@ -75,8 +72,11 @@
             }],
             xaxis: {
                 type: 'datetime'
+            },
+            yaxis: {
+                min: 0,
             }
-        }
+        };
 
         var chartline2 = new ApexCharts(
             document.querySelector("#chart-line2"),
@@ -95,11 +95,7 @@
                     enabled: true
                 },
                 selection: {
-                    enabled: true,
-                    xaxis: {
-                        min: new Date('19 Jun 2017').getTime(),
-                        max: new Date('14 Aug 2017').getTime()
-                    }
+                    enabled: true
                 },
             },
             colors: ['#008FFB'],
@@ -120,9 +116,10 @@
                 }
             },
             yaxis: {
-                tickAmount: 2
+                tickAmount: 2,
+                min: 0
             }
-        }
+        };
 
         var chart = new ApexCharts(
             document.querySelector("#chart-line"),
@@ -140,21 +137,6 @@
               ...
           ]
         */
-        function generateDayWiseTimeSeries(baseval, count, yrange) {
-            var i = 0;
-            var series = [];
-            while (i < count) {
-                var x = baseval;
-                var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
-
-                series.push([x, y]);
-                baseval += 86400000;
-                i++;
-            }
-            return series;
-        }
-
-
     </script>
     <script type="text/javascript" src="assets/reload.js"></script>
 </body>

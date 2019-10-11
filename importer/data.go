@@ -3,6 +3,7 @@ package importer
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"math/big"
 	"time"
 
@@ -27,71 +28,6 @@ const (
 	ScrapeURLKey = "scrapeURL"
 	PollURLKey   = "pollURL"
 )
-
-type Transfer struct {
-	Hash              string
-	BlockCreationTime time.Time
-	TransferType      string
-	Value             string
-	ETHValue          string
-	URL               string
-}
-
-// TODO migrate to api transfer when available, or  own internal struct
-type APITransfer struct {
-	Type       string `json:"type"`
-	ID         string `json:"id"`
-	Attributes struct {
-		BlockCreationTime int    `json:"blockCreationTime"`
-		Cursor            string `json:"cursor"`
-		Fee               string `json:"fee"`
-		GlobalRank        []int  `json:"globalRank"`
-		Total             string `json:"total"`
-		TransferType      string `json:"transferType"`
-		Value             string `json:"value"`
-	} `json:"attributes"`
-	Relationships struct {
-		Block struct {
-			Data struct {
-				Type string `json:"type"`
-				ID   string `json:"id"`
-			} `json:"data"`
-			Links struct {
-				Related string `json:"related"`
-			} `json:"links"`
-		} `json:"block"`
-		ContractMessage struct {
-			Data interface{} `json:"data"`
-		} `json:"contractMessage"`
-		FeeRecipient struct {
-			Data struct {
-				Type string `json:"type"`
-				ID   string `json:"id"`
-			} `json:"data"`
-			Links struct {
-				Related string `json:"related"`
-			} `json:"links"`
-		} `json:"feeRecipient"`
-		From struct {
-			Data interface{} `json:"data"`
-		} `json:"from"`
-		To struct {
-			Data struct {
-				Type string `json:"type"`
-				ID   string `json:"id"`
-			} `json:"data"`
-			Links struct {
-				Related string `json:"related"`
-			} `json:"links"`
-		} `json:"to"`
-		Transaction struct {
-			Data struct {
-				Type string `json:"type"`
-				ID   string `json:"id"`
-			} `json:"data"`
-		} `json:"transaction"`
-	} `json:"relationships"`
-}
 
 func (imp *Importer) Synced() bool {
 	synced, err := imp.data.Bool(SettingsBucket, SyncedKey)
@@ -182,7 +118,7 @@ func (imp *Importer) SaveTransfers(transfers *alethio.EtherTransfers) {
 
 func (imp *Importer) TransfersList() []Transfer {
 	var transfers []Transfer
-	ts, err := imp.data.Last(TransfersBucket, 20)
+	ts, err := imp.data.Last(TransfersBucket, 12)
 	helper.FatalIfError(err, "get last transfers")
 
 	for i := range ts {
@@ -220,11 +156,33 @@ func (imp *Importer) TransfersList() []Transfer {
 	return transfers
 }
 
+func (imp *Importer) DailyList() []Daily {
+	var daily []Daily
+	ds, err := imp.data.Last(DailyBucket, 10000)
+	helper.FatalIfError(err, "get last daily")
+
+	acc := new(big.Int)
+	for i := range ds {
+		date, err := time.Parse("2006-01-02", ds[i].Key)
+		helper.FatalIfError(err, "parse date from key")
+		value := StringToBigInt(string(ds[i].Value))
+		value.Div(value, big.NewInt(1000000000000000000))
+		acc.Add(acc, value)
+		daily = append(daily, []int64{
+			date.UTC().Unix() * 1000,
+			acc.Int64(),
+		})
+	}
+
+	return daily
+}
+
 func StringToBigInt(s string) *big.Int {
 	bi := new(big.Int)
 	bi.SetString(s, 10)
 	return bi
 }
+
 func TimestampToTime(timestamp int) time.Time {
 	dt := time.Unix(int64(timestamp), 0)
 	return dt.UTC()
@@ -257,4 +215,76 @@ func FormatEnd(s string) string {
 
 func FormatMiddle(s string) string {
 	return s[6 : len(s)-6]
+}
+
+func FormatJSON(v interface{}) template.JS {
+	a, _ := json.Marshal(v)
+	return template.JS(a)
+}
+
+type Transfer struct {
+	Hash              string
+	BlockCreationTime time.Time
+	TransferType      string
+	Value             string
+	ETHValue          string
+	URL               string
+}
+
+type Daily []int64
+
+// TODO migrate to api transfer when available, or  own internal struct
+type APITransfer struct {
+	Type       string `json:"type"`
+	ID         string `json:"id"`
+	Attributes struct {
+		BlockCreationTime int    `json:"blockCreationTime"`
+		Cursor            string `json:"cursor"`
+		Fee               string `json:"fee"`
+		GlobalRank        []int  `json:"globalRank"`
+		Total             string `json:"total"`
+		TransferType      string `json:"transferType"`
+		Value             string `json:"value"`
+	} `json:"attributes"`
+	Relationships struct {
+		Block struct {
+			Data struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"data"`
+			Links struct {
+				Related string `json:"related"`
+			} `json:"links"`
+		} `json:"block"`
+		ContractMessage struct {
+			Data interface{} `json:"data"`
+		} `json:"contractMessage"`
+		FeeRecipient struct {
+			Data struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"data"`
+			Links struct {
+				Related string `json:"related"`
+			} `json:"links"`
+		} `json:"feeRecipient"`
+		From struct {
+			Data interface{} `json:"data"`
+		} `json:"from"`
+		To struct {
+			Data struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"data"`
+			Links struct {
+				Related string `json:"related"`
+			} `json:"links"`
+		} `json:"to"`
+		Transaction struct {
+			Data struct {
+				Type string `json:"type"`
+				ID   string `json:"id"`
+			} `json:"data"`
+		} `json:"transaction"`
+	} `json:"relationships"`
 }
