@@ -167,16 +167,14 @@ func (imp *Importer) DailyList() []Daily {
 	ds, err := imp.data.Last(DailyBucket, 10365)
 	helper.FatalIfError(err, "get last daily")
 
-	acc := new(big.Int)
 	for i := range ds {
 		date, err := time.Parse("2006-01-02", ds[i].Key)
 		helper.FatalIfError(err, "parse date from key")
 		value := StringToBigInt(string(ds[i].Value))
 		value.Div(value, big.NewInt(1000000000000000000))
-		acc.Add(acc, value)
 		daily = append(daily, []int64{
 			date.UTC().Unix() * 1000,
-			acc.Int64(),
+			value.Int64(),
 		})
 	}
 
