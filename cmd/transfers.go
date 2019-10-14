@@ -24,8 +24,9 @@ var runCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("starting up server")
 		apiEndpoint := "https://api.aleth.io/v1"
-		address := "0x0000000000000000000000000000000000000000"
+		//address := "0x0000000000000000000000000000000000000000"
 		//address := "0x3378eeaf39dffb316a95f31f17910cbb21ace6bb" // eth2 goerli deposit contract
+		address := "0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be"
 
 		// API client
 		client, err := alethio.NewClient(

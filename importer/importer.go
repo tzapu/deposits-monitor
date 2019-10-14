@@ -2,6 +2,7 @@ package importer
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/tzapu/deposits-monitor/data"
@@ -71,19 +72,8 @@ func (imp *Importer) Backfill() {
 	if scrapeURL == "" {
 		log.Debugf("starting backfill")
 		// if we had no scrape url, then it's our first run
-		// get initial transfers
-		transfers, err := imp.api.Account.GetEtherTransfers(ctx, imp.address)
-		helper.FatalIfError(err, "get transfers")
-
-		_ = imp.processTransfers(transfers)
-		helper.FatalIfError(err, "process transfers")
-
-		// extract future poll urls from initial transfers
-		imp.SetPollURL(transfers.Links.Prev)
-
-		// update scrape url  so we know where to start from if this fails
-		scrapeURL = transfers.Links.Next
-		imp.SetScrapedURL(scrapeURL)
+		// spoof url so we start from the begging
+		scrapeURL = fmt.Sprintf("https://api.aleth.io/v1/accounts/%s/etherTransfers?filter[account]=%s&page[limit]=10&page[prev]=0x00000000000000000000000000000000", imp.address, imp.address)
 	} else {
 		log.Debugf("continuing backfill")
 	}
@@ -94,11 +84,13 @@ func (imp *Importer) Backfill() {
 
 		done := imp.processTransfers(transfers)
 		if done {
+			// extract future poll url
+			imp.SetPollURL(transfers.Links.Prev)
 			break
 		}
 
 		// update scrape url for next page
-		scrapeURL = transfers.Links.Next
+		scrapeURL = transfers.Links.Prev
 		imp.SetScrapedURL(scrapeURL)
 	}
 }

@@ -153,12 +153,18 @@ func (imp *Importer) TransfersList() []Transfer {
 		}
 		transfers = append(transfers, t)
 	}
+
+	for i := len(transfers)/2 - 1; i >= 0; i-- {
+		opp := len(transfers) - 1 - i
+		transfers[i], transfers[opp] = transfers[opp], transfers[i]
+	}
+
 	return transfers
 }
 
 func (imp *Importer) DailyList() []Daily {
 	var daily []Daily
-	ds, err := imp.data.Last(DailyBucket, 10000)
+	ds, err := imp.data.Last(DailyBucket, 10365)
 	helper.FatalIfError(err, "get last daily")
 
 	acc := new(big.Int)

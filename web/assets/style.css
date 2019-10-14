@@ -64,6 +64,7 @@ a {
     white-space: nowrap;
     flex-wrap: wrap;
     align-items: center;
+    font-family: 'Roboto Mono', monospace;
 }
 
 .link {
@@ -81,16 +82,16 @@ a {
 
 .link-box {
     display: flex;
-    font-size: 20px;
+    font-size: 15px;
     line-height: 24px;
     height: 28px;
     font-weight: 500;
     letter-spacing: normal;
     box-sizing: border-box;
     vertical-align: middle;
-    background-color: rgb(208, 222, 242);
-    color: rgb(39, 54, 86);
-    padding: 2px 7px 0px 7px;
+    background-color: rgb(39, 54, 86);;
+    color: rgb(255, 255, 255);
+    padding: 1px 7px 0px 7px;
     border-width: 1px;
     border-style: solid;
     border-color: rgb(208, 222, 242);
