@@ -41,7 +41,7 @@ a {
 }
 
 .addr-dots::before {
-    content: " ... ";
+    content: "...";
 }
 
 .addr-hidden {
@@ -62,7 +62,6 @@ a {
     padding: 8px;
     flex: 0 0 auto;
     white-space: nowrap;
-    flex-wrap: wrap;
     align-items: center;
     font-family: 'Roboto Mono', monospace;
 }
@@ -74,6 +73,8 @@ a {
 
 .value {
     padding: 2px 7px 0px 7px;
+    width: 130px;
+    text-align: right;
 }
 
 .time {

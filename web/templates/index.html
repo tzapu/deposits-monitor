@@ -10,7 +10,7 @@
 <body>
     <header>
         <nav class="container">
-            <div id="logo">deposits</div>
+            <div id="logo">burnt ether (sent to 0x0000000000000000000000000000000000000000)</div>
             <div id="menu">menu</div>
         </nav>
     </header>
@@ -31,9 +31,7 @@
                         </div>
                     </a>
 
-                    <div class="value">{{.ETHValue}} ETH</div>
-
-                    <div class="time">{{.BlockCreationTime | formatDate}}</div>
+                    <div class="value" title="{{.BlockCreationTime | formatDate}}">{{.ETHValue}} ETH</div>
                 </li>
                 {{else}}
                     <li>No Transfers</li>
