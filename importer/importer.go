@@ -17,7 +17,7 @@ import (
 var log = logrus.WithField("module", "monitor")
 
 type Importer struct {
-	address string
+	Address string
 	api     *alethio.Client
 	data    *data.Data
 }
@@ -73,7 +73,7 @@ func (imp *Importer) Backfill() {
 		log.Debugf("starting backfill")
 		// if we had no scrape url, then it's our first run
 		// spoof url so we start from the begging
-		scrapeURL = fmt.Sprintf("https://api.aleth.io/v1/accounts/%s/etherTransfers?filter[account]=%s&page[limit]=10&page[prev]=0x00000000000000000000000000000000", imp.address, imp.address)
+		scrapeURL = fmt.Sprintf("https://api.aleth.io/v1/accounts/%s/etherTransfers?filter[account]=%s&page[limit]=100&page[prev]=0x00000000000000000000000000000000", imp.Address, imp.Address)
 	} else {
 		log.Debugf("continuing backfill")
 	}
@@ -110,7 +110,7 @@ func (imp *Importer) processTransfers(transfers *alethio.EtherTransfers) bool {
 
 func New(address string, api *alethio.Client, data *data.Data) *Importer {
 	return &Importer{
-		address: address,
+		Address: address,
 		api:     api,
 		data:    data,
 	}

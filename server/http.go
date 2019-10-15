@@ -63,6 +63,7 @@ func Serve(imp *importer.Importer) {
 		daily := imp.DailyList()
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"Title":     "Balance Changes Timeseries",
+			"Address":   imp.Address,
 			"Transfers": transfers,
 			"Daily":     daily,
 		})

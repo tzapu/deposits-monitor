@@ -71,6 +71,14 @@ a {
     outline: none;
 }
 
+#all-transfers {
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    color: rgb(53, 110, 255);
+    font-weight: 600;
+}
+
 .value {
     padding: 2px 7px 0px 7px;
     width: 130px;

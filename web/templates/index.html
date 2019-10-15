@@ -10,7 +10,7 @@
 <body>
     <header>
         <nav class="container">
-            <div id="logo">Binance Wallet 1 Daily Ether Balance Changes (0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be)</div>
+            <div id="logo">Binance Wallet 1 Daily Added Ether ({{.Address}})</div>
             <div id="menu">menu</div>
         </nav>
     </header>
@@ -25,7 +25,7 @@
             <ul>
                 {{range .Transfers}}
                 <li class="transfer">
-                    <a class="link" href="{{.URL}}">
+                    <a class="link" href="{{.URL}}" target="_blank">
                         <div class="link-box">
                             <span class="addr-visible" title="{{.Hash}}">{{.Hash | formatStart}}<span class="addr-dots"><strong class="addr-hidden">{{.Hash | formatMiddle}}</strong></span>{{.Hash | formatEnd}}</span>
                         </div>
@@ -37,6 +37,9 @@
                     <li>No Transfers</li>
                 {{end}}
             </ul>
+            <div id="all-transfers">
+                <a class="link" href="https://aleth.io/account/{{.Address}}" target="_blank">see all transfers</a>
+            </div>
         </article>
     </section>
 
