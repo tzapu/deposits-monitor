@@ -27,8 +27,22 @@ a {
     background-color: transparent;
 }
 
+article {
+    background: white;
+    margin: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,.04);
+    border: 1px solid rgb(208, 222, 242);
+    border-radius: 6px 6px 0 6px;
+}
+
 #logo {
     font-family: 'Montserrat', sans-serif;
+    padding-left: 10px;
+}
+
+#menu {
+    padding-right: 10px;
 }
 
 #main {
