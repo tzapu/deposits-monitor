@@ -79,8 +79,14 @@ func (imp *Importer) Backfill() {
 	}
 
 	for {
+	retry:
 		transfers, err := imp.api.EtherTransfers.Get(ctx, scrapeURL)
-		helper.FatalIfError(err, "traverse transfers", scrapeURL)
+		if err != nil {
+			log.Errorf("poll for transfers", err)
+			time.Sleep(time.Second * 5)
+			log.Infof("retrying")
+			goto retry
+		}
 
 		done := imp.processTransfers(transfers)
 		if done {
