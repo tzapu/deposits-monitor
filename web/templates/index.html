@@ -10,7 +10,7 @@
 <body>
     <header>
         <nav class="container">
-            <div id="logo">Binance Wallet 1 Daily Added Ether ({{.Address}})</div>
+            <div id="logo">ETH 2.0 Staking Deposits ({{.Address}})</div>
             <div id="menu">menu</div>
         </nav>
     </header>
@@ -19,6 +19,9 @@
             <div id="chart-line2">
             </div>
             <div id="chart-line">
+            </div>
+            <div id="all-transfers">
+                <a class="link" href="https://monitoring.aleth.io/" target="_blank">notify me when ethereum 2.0 is fully funded</a>
             </div>
         </article>
         <article id="list">
@@ -38,7 +41,8 @@
                 {{end}}
             </ul>
             <div id="all-transfers">
-                <a class="link" href="https://aleth.io/account/{{.Address}}" target="_blank">see all transfers</a>
+                <br />
+                <a class="link" href="https://goerli.aleth.io/account/{{.Address}}" target="_blank">see all transfers</a>
             </div>
         </article>
     </section>
@@ -99,7 +103,7 @@
                 selection: {
                     enabled: true,
                     xaxis: {
-                        min: new Date('1 jan 2019').getTime(),
+                        min: new Date('1 oct 2019').getTime(),
                         max: new Date().getTime()
                     }
                 },

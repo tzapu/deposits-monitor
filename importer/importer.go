@@ -73,7 +73,7 @@ func (imp *Importer) Backfill() {
 		log.Debugf("starting backfill")
 		// if we had no scrape url, then it's our first run
 		// spoof url so we start from the begging
-		scrapeURL = fmt.Sprintf("https://api.aleth.io/v1/accounts/%s/etherTransfers?filter[account]=%s&page[limit]=100&page[prev]=0x00000000000000000000000000000000", imp.Address, imp.Address)
+		scrapeURL = fmt.Sprintf("https://api.goerli.aleth.io/v1/accounts/%s/etherTransfers?filter[account]=%s&page[limit]=100&page[prev]=0x00000000000000000000000000000000", imp.Address, imp.Address)
 	} else {
 		log.Debugf("continuing backfill")
 	}
