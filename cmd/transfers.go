@@ -23,10 +23,7 @@ var runCmd = &cobra.Command{
 	Long:  "monitors ether transfers to an address and provides a visualisation interface",
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("starting up server")
-		apiEndpoint := "https://api.goerli.aleth.io/v1"
-		//address := "0x0000000000000000000000000000000000000000"
-		address := "0x3378eeaf39dffb316a95f31f17910cbb21ace6bb" // eth2 goerli deposit contract
-		//address := "0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be" // binance wallet
+		apiEndpoint := "https://api.aleth.io/v1"
 
 		// API client
 		client, err := alethio.NewClient(
@@ -36,7 +33,7 @@ var runCmd = &cobra.Command{
 		helper.FatalIfError(err)
 
 		// BoltDB
-		dbFile := fmt.Sprintf("db/%s.bolt", address)
+		dbFile := fmt.Sprintf("db/%s.bolt")
 		log.Infof("opening db %s", dbFile)
 		data, err := data.New(dbFile, importer.Buckets)
 		helper.FatalIfError(err, "db open")
@@ -53,7 +50,7 @@ var runCmd = &cobra.Command{
 		signal.Notify(interrupt, os.Kill, os.Interrupt)
 
 		// importer service
-		imp := importer.New(address, client, data)
+		imp := importer.New(client, data)
 
 		// Work
 		go imp.Run()

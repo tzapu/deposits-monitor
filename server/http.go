@@ -2,7 +2,6 @@ package server
 
 import (
 	"html/template"
-	"net/http"
 
 	"github.com/tzapu/deposits-monitor/importer"
 
@@ -58,16 +57,16 @@ func Serve(imp *importer.Importer) {
 		})
 	})
 
-	r.GET("/", func(c *gin.Context) {
-		transfers := imp.TransfersList()
-		daily := imp.DailyList()
-		c.HTML(http.StatusOK, "index.html", gin.H{
-			"Title":     "Balance Changes Timeseries",
-			"Address":   imp.Address,
-			"Transfers": transfers,
-			"Daily":     daily,
-		})
-	})
+	// r.GET("/", func(c *gin.Context) {
+	// 	transfers := imp.TransfersList()
+	// 	daily := imp.DailyList()
+	// 	c.HTML(http.StatusOK, "index.html", gin.H{
+	// 		"Title":     "Balance Changes Timeseries",
+	// 		"Address":   imp.Address,
+	// 		"Transfers": transfers,
+	// 		"Daily":     daily,
+	// 	})
+	// })
 
 	err := r.Run()
 	helper.FatalIfError(err, "gin run")
