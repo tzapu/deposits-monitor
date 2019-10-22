@@ -2,6 +2,7 @@ package server
 
 import (
 	"html/template"
+	"net/http"
 
 	"github.com/tzapu/deposits-monitor/importer"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/tzapu/deposits-monitor/helper"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gocarina/gocsv"
 )
 
 var log = logrus.WithField("module", "server")
@@ -57,16 +59,18 @@ func Serve(imp *importer.Importer) {
 		})
 	})
 
-	// r.GET("/", func(c *gin.Context) {
-	// 	transfers := imp.TransfersList()
-	// 	daily := imp.DailyList()
-	// 	c.HTML(http.StatusOK, "index.html", gin.H{
-	// 		"Title":     "Balance Changes Timeseries",
-	// 		"Address":   imp.Address,
-	// 		"Transfers": transfers,
-	// 		"Daily":     daily,
-	// 	})
-	// })
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"Title": "Compound",
+		})
+	})
+
+	r.GET("/compound_all_3.csv", func(c *gin.Context) {
+		accounts := imp.GetAccounts()
+		csvContent, err := gocsv.MarshalString(&accounts)
+		helper.FatalIfError(err, "csv-ing")
+		c.Data(http.StatusOK, "text/csv", []byte(csvContent))
+	})
 
 	err := r.Run()
 	helper.FatalIfError(err, "gin run")

@@ -33,7 +33,7 @@ var runCmd = &cobra.Command{
 		helper.FatalIfError(err)
 
 		// BoltDB
-		dbFile := fmt.Sprintf("db/%s.bolt")
+		dbFile := fmt.Sprintf("db/%s.bolt", "compound")
 		log.Infof("opening db %s", dbFile)
 		data, err := data.New(dbFile, importer.Buckets)
 		helper.FatalIfError(err, "db open")

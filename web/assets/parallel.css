@@ -1,0 +1,422 @@
+@import url('https://fonts.googleapis.com/css?family=Barlow:100,300,700');
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+}
+body {
+    font-family: Barlow, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 1.4em;
+    background: #f7f7f7;
+    color: #404040;
+}
+body.dark {
+    background: #131313;
+    color: #e3e3e3;
+}
+a {
+    text-decoration: none;
+    color: rgb(53, 124, 255);
+}
+.dark a {
+    color: #5ae;
+}
+
+#wrap {
+    padding: 0 3.5%;
+}
+svg {
+    font-family: Barlow, Helvetica, sans-serif;
+}
+canvas, svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+#chart {
+    position: relative;
+}
+.brush rect.extent {
+    fill: rgba(100,100,100,0.15);
+    stroke: #fff;
+}
+.dark .brush rect.extent {
+    fill: rgba(100,100,100,0.15);
+    stroke: #ddd;
+}
+.brush:hover rect.extent {
+    stroke: #222;
+    stroke-dasharray: 5,5;
+}
+.brush rect.extent:hover {
+    stroke-dasharray: none;
+}
+.resize rect {
+    fill: none;
+}
+.background {
+    fill: none;
+}
+.dark .background {
+    fill: none;
+}
+.axis line, .axis path {
+    fill: none;
+    stroke: #777;
+    stroke-width: 1;
+}
+.dark .axis line, .dark .axis path {
+    stroke: #777;
+}
+.axis .tick {
+    width: 200px;
+}
+.axis text {
+    fill: #111;
+    text-anchor: right;
+    font-size: 11px;
+    text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+.axis text.label {
+    font-size: 12px;
+    cursor: move;
+    padding-bottom: 24px;
+}
+.dark .axis text {
+    fill: #f2f2f2;
+    text-shadow: 0 1px 0 #000, 1px 0 0 #000, 0 -1px 0 #000, -1px 0 0 #000;
+}
+.dark .axis text.label {
+    fill: #ddd;
+}
+
+
+.quarter, .third, .half {
+    float: left;
+}
+.quarter {
+    width: 23%;
+    margin: 0 1%;
+}
+.third {
+    width: 31.3%;
+    margin: 0 1%;
+}
+.half {
+    width: 48%;
+    margin: 0 1%;
+}
+
+
+h3 {
+    margin: 12px 0 9px;
+}
+h3 small {
+    color: #888;
+    font-weight: normal;
+}
+p {
+    margin: 0.6em 0;
+}
+small {
+    line-height: 1.2em;
+}
+
+/* ==============================
+   Address List
+   ============================== */
+
+#address-list {
+    width: 100%;
+    height: 460px;
+    overflow-x: auto;
+    overflow-y: auto;
+    white-space: nowrap;
+}
+
+#address-list a {
+    color: #404040;
+    opacity: 0.54;
+}
+
+#address-list a:hover {
+    opacity: 1;
+}
+
+.dark #address-list a {
+    color: #FFF;
+    opacity: 0.54;
+}
+
+.dark #address-list a:hover {
+    opacity: 1;
+}
+
+#legend {
+    text-align: left;
+    overflow-y: auto;
+    border-left: 1px solid rgba(140,140,140,0.5);
+}
+.row {
+    cursor: pointer;
+}
+.row:hover {
+    font-size: 16px;
+    line-height: 1.3em;
+}
+.off {
+    color: #999;
+}
+.dark .off {
+    color: #555;
+}
+.dark #legend {
+    border-left: 1px solid #777;
+}
+
+.color-block, .color-bar {
+    display: inline-block;
+    height: 8px;
+    width: 8px;
+    margin: 1px 4px 1px 0px;
+}
+
+.little-box {
+    width: 268px;
+    float: left;
+}
+
+/* ==============================
+   Header
+   ============================== */
+
+#header {
+    height: 48px;
+    border-bottom: 1px solid rgb(208, 222, 242);
+    background: #fff;
+    padding: 6px 24px 4px;
+    line-height: 24px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.dark #header {
+    background: #040404;
+    color: #f3f3f3;
+}
+
+.reporting-logo {
+    width: 36px;
+    height: 36px;
+    margin: 4px 16px 0 0;
+}
+
+#header h1 {
+    color: rgb(53, 124, 255);
+    letter-spacing: 0.006388888889em;
+    font-weight: 300;
+    display: inline-block;
+    margin: 0;
+    padding-top: 10px;
+}
+
+.dark #header h1 {
+    color: #fff;
+}
+
+.header-left, .header-right {
+    display: flex;
+}
+
+.header-right {
+    justify-content: flex-end;
+}
+
+.header-right div {
+    display: inline-flex;
+}
+
+.render-info {
+    padding: 11px 8px 0;
+}
+
+.fillbar {
+    margin: 6px 3px 0;
+    height: 12px;
+    line-height: 12px;
+    border:1px solid rgba(120,120,120,0.5);
+    width: 120px;
+    display: inline-block;
+}
+
+#rendered-bar,
+#selected-bar {
+    width:0%;
+    font-weight: bold;
+}
+
+#rendered-bar {
+    background: rgba(53, 124, 255,0.4);
+    border-right: 1px solid rgba(53, 124, 255,0.4);
+}
+
+#selected-bar {
+    background: rgb(53, 124, 255);
+    border-right: 1px solid rgb(53, 124, 255);
+}
+
+.dark #rendered-bar {
+    background: rgba(255,255,255, 0.4);
+    border-right: 1px solid rgba(255,255,255,0.4);
+}
+
+.dark #selected-bar {
+    background: rgb(255,255,255);
+    border-right: 1px solid rgb(255,255,255);
+}
+/* ==============================
+   Scrollbars
+   ============================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #ddd;
+    border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #b5b5b5;
+    border-radius: 12px;
+}
+.dark ::-webkit-scrollbar-track {
+    background: #222;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #444;
+}
+
+
+/* ==============================
+   Buttons
+   ============================== */
+
+#header .alethio-button {
+    margin-top: 5px;
+}
+
+.alethio-button {
+    transition: background-color 0.2s ease-in-out 0s, border-color 0.2s ease-in-out 0s;
+    box-sizing: border-box;
+    border-radius: 4px;
+    font-family: Barlow, Helvetica, sans-serif;
+    text-transform: uppercase;
+    font-size: 12px;
+    line-height: 14px;
+    height: 36px;
+    font-weight: 700;
+    vertical-align: middle;
+    padding: 0px 15px;
+    border-image: initial;
+    text-align: center;
+    cursor: pointer;
+}
+
+.button-margin-right {
+    margin-right: 10px;
+}
+
+.primary {
+    background-color: rgb(53, 124, 255);
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(53, 124, 255);
+}
+
+.secondary {
+    background-color: transparent;
+    color: rgb(53, 124, 255);
+    border: 1px solid rgb(53, 124, 255);
+}
+
+button[disabled=disabled] {
+    color: #555 !important;
+    opacity: 0.4;
+    border: 1px solid rgb(247, 248, 250);
+    background-color: rgb(208, 222, 242);
+}
+
+.settings button[disabled=disabled] {
+    display: none;
+}
+
+.dark .primary {
+    background-color: rgb(53, 124, 255);
+}
+
+.dark .secondary {
+    color: rgb(255,255,255);
+    border: 1px solid rgb(255,255,255);
+}
+
+.dark button[disabled=disabled] {
+    opacity: 0.2;
+}
+
+button#keep-data,
+button#exclude-data {
+    font-weight:bold
+}
+
+button#keep-data:hover {
+    color: #FFF;
+    background-color: rgb(72, 226, 162);
+    border-color: rgb(72, 226, 162);
+}
+
+button#exclude-data:hover {
+    color: #FFF;
+    background-color: rgb(246, 85, 85);
+    border-color: rgb(246, 85, 85);
+}
+
+
+input {
+    font-family: 'Barlow', Arial, sans-serif;
+    color: rgb(39, 54, 86);
+    font-weight: 500;
+    text-align: left;
+    line-height: 1.21428571em;
+
+    background: #fff;
+    border: 1px solid rgba(34,36,38,.15);
+    color: rgba(0,0,0,.87);
+    border-radius: .28571429rem;
+
+    margin: 0;
+    max-width: 100%;
+    padding: .67857143em 1em;
+
+    -webkit-box-flex: 1;
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+    outline: 0;
+    -webkit-tap-highlight-color: rgba(255,255,255,0);
+    -webkit-transition: border-color .1s ease,-webkit-box-shadow .1s ease;
+    transition: border-color .1s ease,-webkit-box-shadow .1s ease;
+    transition: box-shadow .1s ease,border-color .1s ease;
+    transition: box-shadow .1s ease,border-color .1s ease,-webkit-box-shadow .1s ease;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+input#search {
+    margin-left: 8px;
+    max-width: 100%;
+    width: 240px;
+}

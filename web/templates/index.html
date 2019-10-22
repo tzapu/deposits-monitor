@@ -1,153 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>{{.Title}}</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/nanoreset.css">
-    <link rel="stylesheet" href="assets/style.css">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>Alethio Reports - Compound Users</title>
+    <link rel="stylesheet" type="text/css" href="assets/parallel.css" />
+
+    <!-- <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/favicon/site.webmanifest"> -->
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
 </head>
-<body>
-    <header>
-        <nav class="container">
-            <div id="logo">ETH 2.0 Staking Deposits ({{.Address}})</div>
-            <div id="menu">menu</div>
-        </nav>
-    </header>
-    <section id="main" class="container">
-        <article id="graph">
-            <div id="chart-line2">
+<body class="dark">
+<div id="header">
+    <div class="header-left">
+        <a href="https://reports.staging.aleth.io/" target="_blank"><img class="reporting-logo" src="assets/alethio-reporting-logo.png" alt="logo"></a>
+        <button class="alethio-button secondary button-margin-right" title="Zoom in on selected data" id="keep-data" disabled="disabled">Keep</button>
+        <button class="alethio-button secondary button-margin-right" title="Remove selected data" id="exclude-data" disabled="disabled">Exclude</button>
+        <button class="alethio-button primary" title="Export data as CSV" id="export-data">Export</button>
+    </div>
+    <div class="header-center">
+        <h1>Compound Users - September 26, 2019</h1>
+    </div>
+    <div class="header-right">
+        <div class="controls">
+            <div class="render-info">
+                <div class="render-stats"><strong id="rendered-count"></strong>/<strong id="selected-count"></strong></div>
+                <div class="fillbar"><div id="selected-bar"><div id="rendered-bar">&nbsp;</div></div></div>
+                <div class="render-description">lines at &nbsp;<strong id="opacity"></strong>&nbsp; opacity.</div>
             </div>
-            <div id="chart-line">
+            <div class="settings">
+                <button class="alethio-button secondary button-margin-right" id="hide-ticks">Hide Ticks</button>
+                <button class="alethio-button secondary button-margin-right" id="show-ticks" disabled="disabled">Show Ticks</button>
+                <button class="alethio-button secondary button-margin-right" id="dark-theme">Dark</button>
+                <button class="alethio-button secondary" id="light-theme" disabled="disabled">Light</button>
             </div>
-            <div id="all-transfers">
-                <a class="link" href="https://monitoring.aleth.io/" target="_blank">notify me when ethereum 2.0 is fully funded</a>
-            </div>
-        </article>
-        <article id="list">
-            <ul>
-                {{range .Transfers}}
-                <li class="transfer">
-                    <a class="link" href="{{.URL}}" target="_blank">
-                        <div class="link-box">
-                            <span class="addr-visible" title="{{.Hash}}">{{.Hash | formatStart}}<span class="addr-dots"><strong class="addr-hidden">{{.Hash | formatMiddle}}</strong></span>{{.Hash | formatEnd}}</span>
-                        </div>
-                    </a>
-
-                    <div class="value" title="{{.BlockCreationTime | formatDate}}">{{.ETHValue}} ETH</div>
-                </li>
-                {{else}}
-                    <li>No Transfers</li>
-                {{end}}
-            </ul>
-            <div id="all-transfers">
-                <br />
-                <a class="link" href="https://goerli.aleth.io/account/{{.Address}}" target="_blank">see all transfers</a>
-            </div>
-        </article>
-    </section>
-
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-        var data = {{.Daily | formatJSON}};
-        var optionsline2 = {
-            chart: {
-                id: 'chart2',
-                type: 'line',
-                height: 430,
-                toolbar: {
-                    autoSelected: 'pan',
-                    show: false
-                }
-            },
-            colors: ['#546E7A'],
-            stroke: {
-                width: 3
-            },
-            dataLabels: {
-                enabled: false
-            },
-            fill: {
-                opacity: 1,
-            },
-            markers: {
-                size: 0
-            },
-            series: [{
-                data: data
-            }],
-            xaxis: {
-                type: 'datetime'
-            },
-            yaxis: {
-                min: 0,
-            }
-        };
-
-        var chartline2 = new ApexCharts(
-            document.querySelector("#chart-line2"),
-            optionsline2
-        );
-
-        chartline2.render();
-
-        var options = {
-            chart: {
-                id: 'chart1',
-                height: 130,
-                type: 'area',
-                brush:{
-                    target: 'chart2',
-                    enabled: true
-                },
-                selection: {
-                    enabled: true,
-                    xaxis: {
-                        min: new Date('1 oct 2019').getTime(),
-                        max: new Date().getTime()
-                    }
-                },
-            },
-            colors: ['#008FFB'],
-            series: [{
-                data: data
-            }],
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    opacityFrom: 0.91,
-                    opacityTo: 0.1,
-                }
-            },
-            xaxis: {
-                type: 'datetime',
-                tooltip: {
-                    enabled: false
-                }
-            },
-            yaxis: {
-                tickAmount: 2,
-                min: 0
-            }
-        };
-
-        var chart = new ApexCharts(
-            document.querySelector("#chart-line"),
-            options
-        );
-
-        chart.render();
-
-        /*
-          // this function will generate output in this format
-          // data = [
-              [timestamp, 23],
-              [timestamp, 33],
-              [timestamp, 12]
-              ...
-          ]
-        */
-    </script>
-    <script type="text/javascript" src="assets/reload.js"></script>
+        </div>
+    </div>
+</div>
+<div id="chart">
+    <canvas id="background"></canvas>
+    <canvas id="foreground"></canvas>
+    <canvas id="highlight"></canvas>
+    <svg></svg>
+</div>
+<div id="wrap">
+    <div class="third" id="controls">
+        <div class="little-box">
+            <h3>Controls</h3>
+            <p>
+                <strong>Brush</strong>: Drag vertically along an axis.<br/>
+                <strong>Remove Brush</strong>: Tap the axis background.<br/>
+                <strong>Reorder Axes</strong>: Drag a label horizontally.<br/>
+                <strong>Invert Axis</strong>: Tap an axis label.<br/>
+                <strong>Remove Axis</strong>: Drag axis label to the left edge.<br/>
+            </p>
+        </div>
+    </div>
+    <div  class="third">
+        <h3>Money Markets</h3>
+        <p id="legend">
+        </p>
+    </div>
+    <div class="third">
+        <h3>Sample of 25 entries <input type="text" id="search" placeholder="Search Accounts..."></input></h3>
+        <p id="address-list">
+        </p>
+    </div>
+</div>
 </body>
-</html>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/2.10.0/d3.v2.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+<script src="assets/parallel_compound_2.js"></script>
+<script type="text/javascript" src="assets/reload.js"></script>
+</html>Z
