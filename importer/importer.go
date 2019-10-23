@@ -85,20 +85,6 @@ func (imp *Importer) monitorEvents(address, market, topic, event string) {
 
 }
 
-/*
-func (imp *Importer) processTransfers(transfers *alethio.EtherTransfers) bool {
-	if len(transfers.Data) == 0 {
-		return true
-	}
-
-	// TODO send just data, once it's a separate struct in the API
-	imp.SaveTransfers(transfers)
-
-	log.Debugf("processed %d records", len(transfers.Data))
-
-	return false
-}
-*/
 func initialLogEntriesLink(contract, topic string) string {
 	return fmt.Sprintf("https://api.aleth.io/v1/log-entries?filter[loggedBy]=%s&filter[hasLogTopics.0]=%s&page[limit]=10&page[prev]=0x00000000000000000000000000000000", contract, topic)
 }

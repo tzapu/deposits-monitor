@@ -63,6 +63,13 @@ func (imp *Importer) ProcessTransfers(address, market string, events []alethio.L
 			toAcc.NumberOfTransfersIn++
 			toAcc.TotalTransfersIn.Add(&toAcc.TotalTransfersIn, value)
 			putAccount(accounts, &toAcc)
+
+			cp // FirstAction
+
+			// LastAction
+			// DaysActive
+			// DaysSinceFirst
+			// DaysSinceLast
 		}
 		return nil
 	})
