@@ -49,19 +49,19 @@ func (imp *Importer) ProcessTransfers(address, market string, events []alethio.L
 			fromAddress := event.Attributes.EventDecoded.Inputs[0].Value
 			toAddress := event.Attributes.EventDecoded.Inputs[0].Value
 			v := event.Attributes.EventDecoded.Inputs[2].Value
-			value := new(big.Int)
-			value.SetString(v, 10)
+			value := new(big.Float)
+			value.SetString(v)
 
 			// from
 			fromAcc := getAccount(accounts, market, fromAddress)
 			fromAcc.NumberOfTransfersOut++
-			fromAcc.TotalTransfersOut.Add(&fromAcc.TotalTransfersOut, value)
+			fromAcc.TotalTransfersOut.Add(&fromAcc.TotalTransfersOut.Float, value)
 			putAccount(accounts, &fromAcc)
 
 			// to
 			toAcc := getAccount(accounts, market, toAddress)
 			toAcc.NumberOfTransfersIn++
-			toAcc.TotalTransfersIn.Add(&toAcc.TotalTransfersIn, value)
+			toAcc.TotalTransfersIn.Add(&toAcc.TotalTransfersIn.Float, value)
 			putAccount(accounts, &toAcc)
 
 			// FirstAction
@@ -215,11 +215,11 @@ type Account struct {
 	// - topics[0] = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'"
 	//
 	// received by user
-	NumberOfTransfersIn int64   `csv:"number_of_transfers_in"`
-	TotalTransfersIn    big.Int `csv:"total_transfers_in"`
+	NumberOfTransfersIn int64 `csv:"number_of_transfers_in"`
+	TotalTransfersIn    Wei   `csv:"total_transfers_in"`
 	// sent by user
-	NumberOfTransfersOut int64   `csv:"number_of_transfers_out"`
-	TotalTransfersOut    big.Int `csv:"total_transfers_out"`
+	NumberOfTransfersOut int64 `csv:"number_of_transfers_out"`
+	TotalTransfersOut    Wei   `csv:"total_transfers_out"`
 
 	BorrowBalance     int64 `csv:"borrow_balance"`
 	PercentRedeemable int64 `csv:"percent_redeemable"`
@@ -233,4 +233,14 @@ type Account struct {
 	SupplyBalanceEth  int64 `csv:"supply_balance_ETH"`
 	BorrowBalanceEth  int64 `csv:"borrow_balance_ETH"`
 	CollateralRatio   int64 `csv:"collateral_ratio"`
+}
+
+type Wei struct {
+	big.Float
+}
+
+func (v *Wei) MarshalCSV() (string, error) {
+	unit, _ := new(big.Float).SetString("100000000")
+	v.Quo(&v.Float, unit)
+	return fmt.Sprintf("%.*f", 2, v), nil
 }
